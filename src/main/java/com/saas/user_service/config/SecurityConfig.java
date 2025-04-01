@@ -26,7 +26,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT-based authentication
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login").permitAll() // Public access
+                        .requestMatchers("/api/v1/users/register", "/api/v1/users/login").permitAll() // Public access
                         .anyRequest().authenticated() // Secure other endpoints
                 )
                 .formLogin(login -> login.disable()) // Disable default login form
