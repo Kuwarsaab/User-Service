@@ -23,7 +23,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**")
+                        .requestMatchers("**") // Match all endpoints
                         .permitAll() // Allow these endpoints without authentication
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
