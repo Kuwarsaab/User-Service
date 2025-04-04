@@ -6,6 +6,8 @@ import com.saas.user_service.entity.User;
 import com.saas.user_service.repository.UserRepository;
 import jakarta.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,4 +75,13 @@ public class UserService {
         return userRespDto;
     }
 
+    public List<UserRespDto> getAllUser() {
+        List<User> users = repository.findAll();
+        List<UserRespDto> res = new ArrayList<>();
+        for(User user : users){
+            UserRespDto resp = convertModelToResponseDto(user);
+            res.add(resp);
+        }
+        return res;
+    }
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.rmi.ServerException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -65,6 +66,23 @@ public class UserController {
             UserRespDto user = new UserRespDto();
             user.setErrorMessage(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(user);
+        }
+    }
+
+    /*
+     * This endpoint is used to retrieve all the users exist in the table. It returns
+     * a List UserRespDto object in the response body.
+     * The endpoint is annotated with @GetMapping, which means it will handle HTTP
+     * GET
+     * requests to the specified URL ("/get-all").
+     */
+    @GetMapping("/get-all")
+    public List<UserRespDto> getAllUser() throws ServerException{
+        try{
+            List<UserRespDto> userResp = service.getAllUser();
+            return userResp;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
