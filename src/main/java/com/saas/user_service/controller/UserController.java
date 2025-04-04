@@ -2,13 +2,17 @@ package com.saas.user_service.controller;
 
 import com.saas.user_service.dtos.request.UserReqDto;
 import com.saas.user_service.dtos.response.UserRespDto;
+import com.saas.user_service.entity.User;
 import com.saas.user_service.service.UserService;
 import jakarta.validation.Valid;
+
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -70,19 +74,59 @@ public class UserController {
     }
 
     /*
-     * This endpoint is used to retrieve all the users exist in the table. It returns
+     * This endpoint is used to retrieve all the users exist in the table. It
+     * returns
      * a List UserRespDto object in the response body.
      * The endpoint is annotated with @GetMapping, which means it will handle HTTP
      * GET
      * requests to the specified URL ("/get-all").
      */
     @GetMapping("/get-all")
-    public List<UserRespDto> getAllUser() throws ServerException{
-        try{
+    public List<UserRespDto> getAllUser() throws ServerException {
+        try {
             List<UserRespDto> userResp = service.getAllUser();
             return userResp;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /*
+     * This endpoint is used to update a user by their email address. It accepts the
+     * email address as a path variable and a UserReqDto object in the request body.
+     * It returns a UserRespDto object in the response body.
+     * The endpoint is annotated with @PutMapping, which means it will handle HTTP
+     * PUT requests to the specified URL ("/update/{email}").
+     */
+    @PutMapping("/update/{email}")
+    public ResponseEntity<UserRespDto> updateUserByEmail(@Valid @PathVariable String email,
+            @RequestBody UserReqDto userReqDto) throws NotFoundException {
+        try {
+            UserRespDto user = service.updateByEmail(email, userReqDto);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            throw new RuntimeException("User not found: " + email);
+        }
+    }
+
+    /*
+     * This endpoint is used to delete a user by their email address. It accepts the
+     * email address as a path variable and returns a UserRespDto object in the
+     * response body.
+     * The endpoint is annotated with @PostMapping, which means it will handle HTTP
+     * POST requests to the specified URL ("/delete/{email}").
+     */
+    @PostMapping("/delete/{email}")
+    public ResponseEntity<UserRespDto> deleteUserByEmail(@Valid @PathVariable String email) throws NotFoundException {
+        String delete = service.deleteByEmail(email);
+        try {
+            UserRespDto user = new UserRespDto();
+            user.setMessage(delete);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            UserRespDto user = new UserRespDto();
+            user.setErrorMessage(delete);
+            throw new RuntimeException(user.getErrorMessage());
         }
     }
 

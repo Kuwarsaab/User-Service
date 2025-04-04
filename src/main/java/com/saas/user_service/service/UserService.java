@@ -23,7 +23,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     /*
-     * This method is used to convert the User model to UserRespDto. It sets the id, name, email, and role of the user.
+     * This method is used to convert the User model to UserRespDto. It sets the id,
+     * name, email, and role of the user.
      */
     private UserRespDto convertModelToResponseDto(User user) {
         UserRespDto userRespDto = new UserRespDto();
@@ -35,7 +36,8 @@ public class UserService {
     }
 
     /*
-     * This method is used to convert the UserReqDto to User model. It sets the email, name, password, and role of the user.
+     * This method is used to convert the UserReqDto to User model. It sets the
+     * email, name, password, and role of the user.
      * The password is encoded using the PasswordEncoder.
      */
     private User convertRequestDtoToModel(@Valid UserReqDto userReqDto) {
@@ -48,8 +50,10 @@ public class UserService {
     }
 
     /*
-     * This method is used to create a new user. It checks if the user already exists by email.
-     * If the user already exists, it throws a RuntimeException. Otherwise, it saves the user to the database.
+     * This method is used to create a new user. It checks if the user already
+     * exists by email.
+     * If the user already exists, it throws a RuntimeException. Otherwise, it saves
+     * the user to the database.
      */
     public UserRespDto createUser(@Valid UserReqDto userReqDto) {
         if (repository.existsByEmail(userReqDto.getEmail())) {
@@ -75,13 +79,54 @@ public class UserService {
         return userRespDto;
     }
 
+    /**
+     * This method is used to get all the users exist in the table.
+     */
     public List<UserRespDto> getAllUser() {
-        List<User> users = repository.findAll();
-        List<UserRespDto> res = new ArrayList<>();
-        for(User user : users){
-            UserRespDto resp = convertModelToResponseDto(user);
-            res.add(resp);
+        List<User> usersList = repository.findAll();
+        List<UserRespDto> allusers = new ArrayList<>();
+        if (usersList.isEmpty()) {
+            throw new RuntimeException("No users found in the database.");
         }
-        return res;
+
+        for (User user : usersList) {
+            UserRespDto resp = convertModelToResponseDto(user);
+            allusers.add(resp);
+        }
+        return allusers;
     }
+
+    /**
+     * This method is used to update the user by email.
+     */
+    public UserRespDto updateByEmail(String email, UserReqDto userReqDto) {
+        Optional<User> optUser = repository.findByEmail(email);
+
+        if (optUser.isEmpty()) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+
+        User user = optUser.get();
+
+        if (!userReqDto.getName().isEmpty()) {
+            user.setName(userReqDto.getName());
+        }
+
+        UserRespDto userRespDto = convertModelToResponseDto(user);
+        return userRespDto;
+    }
+
+    /**
+     * This method is used to delete the user by email.
+     */
+    public String deleteByEmail(String email) {
+        int isDeleted = repository.deleteByEmail(email);
+
+        if (isDeleted == 0) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+
+        return "User deleted successfully: " + email;
+    }
+
 }
